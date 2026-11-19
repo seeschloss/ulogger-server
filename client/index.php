@@ -46,6 +46,10 @@ function exitWithSuccess($params = []) {
 }
 
 require_once(dirname(__DIR__) . "/helpers/auth.php");
+require_once(ROOT_DIR . "/helpers/config.php");
+require_once(ROOT_DIR . "/helpers/track.php");
+require_once(ROOT_DIR . "/helpers/position.php");
+require_once(ROOT_DIR . "/helpers/upload.php");
 
 $action = uUtils::postString('action');
 
@@ -54,6 +58,8 @@ if ($action !== "auth" && !$auth->isAuthenticated()) {
   $auth->sendUnauthorizedHeader();
   exitWithError("Unauthorized");
 }
+
+$config = uConfig::getInstance();
 
 switch ($action) {
   // action: authorize
@@ -118,12 +124,61 @@ switch ($action) {
       exitWithError("Missing required parameter");
     }
 
+    // Auto-split track if configured
+    if ($config->autoSplitTime > 0 && $config->autoSplitDistance > 0) {
+      $lastPosition = uPosition::getLastForTrack($trackId);
+      if ($lastPosition->isValid) {
+        // Create a temporary position object for the new point to calculate distance/time
+        $newPos = new uPosition();
+        $newPos->latitude = $lat;
+        $newPos->longitude = $lon;
+        $newPos->timestamp = $timestamp;
+
+        $distance = $newPos->distanceTo($lastPosition);
+        $timeDiff = $newPos->secondsTo($lastPosition);
+
+        if ($distance <= $config->autoSplitDistance && $timeDiff >= $config->autoSplitTime) {
+          // Split the track: archive current track, keep same trackId for new points
+          $db = uDb::getInstance();
+          try {
+            $db->beginTransaction();
+
+            // Get first position of current track for naming the archived track
+            $firstPosition = uPosition::getFirst($trackId);
+            $archiveName = "";
+            if ($firstPosition->isValid) {
+              $archiveName = date('c', $firstPosition->timestamp); // ISO8601
+            } else {
+              $archiveName = date('c', $timestamp);
+            }
+
+            // Create new archived track with the timestamp name
+            $archiveTrackId = uTrack::add($auth->user->id, $archiveName);
+            if ($archiveTrackId === false) {
+              throw new Exception("Failed to create archive track");
+            }
+
+            // Move all positions from current track to archive track
+            $query = "UPDATE " . $db->table('positions') . " SET track_id = ? WHERE track_id = ?";
+            $stmt = $db->prepare($query);
+            $stmt->execute([ $archiveTrackId, $trackId ]);
+
+            $db->commit();
+          } catch (Exception $e) {
+            if ($db->inTransaction()) {
+              $db->rollBack();
+            }
+            syslog(LOG_ERR, "Auto-split failed: " . $e->getMessage());
+          }
+        }
+      }
+    }
+
     $image = null;
     if (!empty($imageMeta)) {
       $image = uUpload::add($imageMeta, $trackId);
     }
 
-    require_once(ROOT_DIR . "/helpers/position.php");
     $positionId = uPosition::add($auth->user->id, $trackId,
       $timestamp, $lat, $lon, $altitude, $speed, $bearing, $accuracy, $provider, $comment, $image);
 

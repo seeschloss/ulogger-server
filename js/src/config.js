@@ -23,6 +23,8 @@ import uObserve from './observe.js';
 
 /**
  * @class uConfig
+ * @property {number} autoSplitTime
+ * @property {number} autoSplitDistance
  * @property {string} colorExtra
  * @property {string} colorHilite
  * @property {string} colorNormal
@@ -54,6 +56,8 @@ export default class uConfig {
   }
 
   initialize() {
+    this.autoSplitTime = 0;
+    this.autoSplitDistance = 0;
     this.interval = 10;
     this.units = 'metric';
     this.lang = 'en';

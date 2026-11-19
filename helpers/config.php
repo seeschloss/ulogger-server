@@ -137,6 +137,18 @@ class uConfig {
    */
   public $uploadMaxSize = 5242880;
 
+  /**
+   * @var int Auto-split track: minimum time in seconds of inactivity before splitting
+   * 0 = disabled
+   */
+  public $autoSplitTime = 0;
+
+  /**
+   * @var int Auto-split track: maximum distance in meters between points before splitting
+   * 0 = disabled
+   */
+  public $autoSplitDistance = 0;
+
   public function __construct($useDatabase = true) {
     if ($useDatabase) {
       $this->setFromDatabase();
@@ -238,7 +250,9 @@ class uConfig {
         ["'stroke_opacity'", $placeholder],
         ["'stroke_weight'", $placeholder],
         ["'units'", $placeholder],
-        ["'upload_maxsize'", $placeholder]
+        ["'upload_maxsize'", $placeholder],
+        ["'auto_split_time'", $placeholder],
+        ["'auto_split_distance'", $placeholder]
       ];
       $query = self::db()->insertOrReplace("config", [ "name", "value" ], $values, "name", "value");
       $stmt = self::db()->prepare($query);
@@ -262,7 +276,9 @@ class uConfig {
         $this->strokeOpacity,
         $this->strokeWeight,
         $this->units,
-        $this->uploadMaxSize
+        $this->uploadMaxSize,
+        $this->autoSplitTime,
+        $this->autoSplitDistance
       ];
 
       $stmt->execute(array_map("serialize", $params));
@@ -429,6 +445,12 @@ class uConfig {
     if (isset($arr['upload_maxsize']) && is_numeric($arr['upload_maxsize'])) {
       $this->uploadMaxSize = (int) $arr['upload_maxsize'];
       $this->setUploadLimit();
+    }
+    if (isset($arr['auto_split_time']) && is_numeric($arr['auto_split_time'])) {
+      $this->autoSplitTime = (int) $arr['auto_split_time'];
+    }
+    if (isset($arr['auto_split_distance']) && is_numeric($arr['auto_split_distance'])) {
+      $this->autoSplitDistance = (int) $arr['auto_split_distance'];
     }
   }
 

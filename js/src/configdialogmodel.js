@@ -32,6 +32,8 @@ export default class ConfigDialogModel extends ViewModel {
 
   constructor() {
     super({
+      autoSplitTime: config.autoSplitTime,
+      autoSplitDistance: config.autoSplitDistance,
       colorExtra: config.colorExtra,
       colorHilite: config.colorHilite,
       colorNormal: config.colorNormal,
@@ -230,6 +232,10 @@ export default class ConfigDialogModel extends ViewModel {
         </div>
         <label><b>${$._('interval')}</b>
         <input type="number" data-bind="interval" min="1" value="${this.model.interval}" required></label>
+        <label><b>${$._('autosplittime')}</b>
+        <input type="number" data-bind="autoSplitTime" min="0" value="${this.model.autoSplitTime}" required></label>
+        <label><b>${$._('autosplitdistance')}</b>
+        <input type="number" data-bind="autoSplitDistance" min="0" value="${this.model.autoSplitDistance}" required></label>
         <label><b>${$._('longitude')}</b>
         <input type="number" data-bind="initLongitude" min="-180" max="180" step="0.01" value="${this.model.initLongitude}" required></label>
         <label><b>${$._('latitude')}</b>

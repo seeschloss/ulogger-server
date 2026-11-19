@@ -36,6 +36,8 @@ if ($auth->isAuthenticated()) {
 }
 
 $resultConfig = [
+  "autoSplitTime" => $config->autoSplitTime,
+  "autoSplitDistance" => $config->autoSplitDistance,
   "colorExtra" => $config->colorExtra,
   "colorHilite" => $config->colorHilite,
   "colorNormal" => $config->colorNormal,

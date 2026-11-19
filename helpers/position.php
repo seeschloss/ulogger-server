@@ -238,6 +238,56 @@ class uPosition {
   }
 
   /**
+   * Get first position of a track
+   *
+   * @param int $trackId Track id
+   * @return uPosition Position
+   */
+  public static function getFirst($trackId) {
+    $query = "SELECT p.id, " . self::db()->unix_timestamp('p.time') . " AS tstamp, p.user_id, p.track_id,
+              p.latitude, p.longitude, p.altitude, p.speed, p.bearing, p.accuracy, p.provider,
+              p.comment, p.image, u.login, t.name
+              FROM " . self::db()->table('positions') . " p
+              LEFT JOIN " . self::db()->table('users') . " u ON (p.user_id = u.id)
+              LEFT JOIN " . self::db()->table('tracks') . " t ON (p.track_id = t.id)
+              WHERE p.track_id = ?
+              ORDER BY p.time ASC, p.id ASC LIMIT 1";
+    $position = new uPosition();
+    try {
+      $position->loadWithQuery($query, [ $trackId ]);
+    } catch (PDOException $e) {
+      // TODO: handle exception
+      syslog(LOG_ERR, $e->getMessage());
+    }
+    return $position;
+  }
+
+  /**
+   * Get last position of a track
+   *
+   * @param int $trackId Track id
+   * @return uPosition Position
+   */
+  public static function getLastForTrack($trackId) {
+    $query = "SELECT p.id, " . self::db()->unix_timestamp('p.time') . " AS tstamp, p.user_id, p.track_id,
+              p.latitude, p.longitude, p.altitude, p.speed, p.bearing, p.accuracy, p.provider,
+              p.comment, p.image, u.login, t.name
+              FROM " . self::db()->table('positions') . " p
+              LEFT JOIN " . self::db()->table('users') . " u ON (p.user_id = u.id)
+              LEFT JOIN " . self::db()->table('tracks') . " t ON (p.track_id = t.id)
+              WHERE p.track_id = ?
+              ORDER BY p.time DESC, p.id DESC LIMIT 1";
+    $position = new uPosition();
+    try {
+      $position->loadWithQuery($query, [ $trackId ]);
+    } catch (PDOException $e) {
+      // TODO: handle exception
+      syslog(LOG_ERR, $e->getMessage());
+    }
+    return $position;
+  }
+
+  /**
    * Get last position data from database
    * (for given user if specified)
    *

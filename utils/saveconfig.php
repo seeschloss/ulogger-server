@@ -33,6 +33,8 @@ if (!$auth->isAdmin()) {
 $olLayers = uUtils::postArray('olLayers');
 
 $data = [
+  'auto_split_time' => uUtils::postInt('autoSplitTime'),
+  'auto_split_distance' => uUtils::postInt('autoSplitDistance'),
   'map_api' => uUtils::postString('mapApi'),
   'latitude' => uUtils::postFloat('initLatitude'),
   'longitude' => uUtils::postFloat('initLongitude'),
