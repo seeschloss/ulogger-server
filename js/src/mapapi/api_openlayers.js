@@ -191,7 +191,8 @@ export default class OpenLayersApi {
     this.layerMarkers = new ol.layer.VectorLayer({
       name: 'Markers',
       type: 'data',
-      source: new ol.source.Vector()
+      source: new ol.source.Vector(),
+      visible: false
     });
     this.map.addLayer(this.layerTrack);
     this.map.addLayer(this.layerMarkers);

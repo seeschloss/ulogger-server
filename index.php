@@ -87,7 +87,7 @@ if ($config->requireAuthentication && !$auth->isAuthenticated()) {
 
           <div class="section" data-bind="trackColor">
             <div class="menu-title"><?= $lang['trackcolor'] ?></div>
-            <input id="color-speed" type="checkbox" data-bind="speedVisible"> <label for="color-speed"><?= $lang['speed'] ?></label><br>
+            <input id="color-speed" type="checkbox" checked data-bind="speedVisible"> <label for="color-speed"><?= $lang['speed'] ?></label><br>
             <input id="color-altitude" type="checkbox" data-bind="altitudeVisible"> <label for="color-altitude"><?= $lang['altitude'] ?></label><br>
           </div>
 

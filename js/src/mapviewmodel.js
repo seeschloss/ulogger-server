@@ -69,7 +69,7 @@ export default class MapViewModel extends ViewModel {
       markerSelect: null,
       // click handler
       onMenuToggle: null,
-      speedVisible: false,
+      speedVisible: true,
       altitudeVisible: false
     });
     this.state = state;
